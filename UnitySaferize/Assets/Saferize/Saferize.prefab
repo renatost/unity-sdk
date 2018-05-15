@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1054051769086066}
+  m_IsPrefabParent: 1
+--- !u!1 &1054051769086066
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 224982242049105480}
+  - component: {fileID: 114505941937440924}
+  m_Layer: 5
+  m_Name: Saferize
+  m_TagString: Saferize
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &114505941937440924
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1054051769086066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efb8e02b46098453695f41be4758b2bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  saferizePrivateKey: 
+  saferizeUrl: 
+  saferizeWebsocketUrl: 
+  saferizeApiKey: 
+  OnPause: {fileID: 1013153919573006, guid: 75e41f8549ebf44f6a863439d6948a9c, type: 2}
+  OnTimeIsUp: {fileID: 1036681651614596, guid: e88b9076dc91d4e389bbcb27245b9636, type: 2}
+  OnRevoke: {fileID: 1069594972917408, guid: 153207b0221e842f08c4a19c40df4574, type: 2}
+  OnResume: {fileID: 1897960305298520, guid: e08329b59cf324e93a2ccdd16dab8ccd, type: 2}
+  SignUpPanel: {fileID: 1085306285115916, guid: fbf9e979ac16d4e7080daedfcfa955be,
+    type: 2}
+  CurrentUserPanel: {fileID: 1914822508480012, guid: cd0e518e26c7c4d0e9d0319848bf7591,
+    type: 2}
+--- !u!224 &224982242049105480
+RectTransform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1054051769086066}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
