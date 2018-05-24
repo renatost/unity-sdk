@@ -24,8 +24,8 @@ namespace SaferizeSDK
 				{"Authorization", "Bearer " + saferizeConnection.GetJWTSignature()},
 			};
 
-			timer = new Timer(checkSocketState, this, maxPingResponseWaitTime * 1000, maxPingResponseWaitTime * 1000);
 			maxPingResponseWaitTime = 5;
+			timer = new Timer(checkSocketState, this, maxPingResponseWaitTime * 1000, maxPingResponseWaitTime * 1000);
         }
         
 		private void checkSocketState(object state)

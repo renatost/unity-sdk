@@ -83,7 +83,7 @@ namespace SaferizeSDK
 
 		private void ReceiveMessage(WebSocketSharp.MessageEventArgs e)
         {
-            if(e.Data == "&")
+			if("&".Equals(e.Data))
 			{
 				return;
 			}
@@ -147,6 +147,12 @@ namespace SaferizeSDK
 
         private void HandleWebException(WebException exception)
         {
+			if(exception.Response == null)
+			{
+				Console.WriteLine("connection timed out");
+				return;
+			}
+
             var resp = new StreamReader(exception.Response.GetResponseStream()).ReadToEnd();
 
             GameSessionException gameSessionException = JsonConvert.DeserializeObject<GameSessionException>(resp);
