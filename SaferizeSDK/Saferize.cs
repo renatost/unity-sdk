@@ -3,7 +3,6 @@ using System.IO;
 using System.Net;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WebSocket4Net;
 
 namespace SaferizeSDK
 {
@@ -11,8 +10,11 @@ namespace SaferizeSDK
     {
         private SaferizeConnection connection;
         private WebSocketClient socket;
+		private AppUsageSession session;
+
         private string websocketUrl;
-        private AppUsageSession session;
+		private int reconnectTryCount;
+		private int maxRetryCount;
 
         public delegate void PauseEventDelegate();
         public delegate void ResumeEventDelegate();
@@ -28,6 +30,8 @@ namespace SaferizeSDK
         {
             connection = new SaferizeConnection(privateKey, saferizeUrl, apiKey);
             this.websocketUrl = websocketUrl;
+			this.reconnectTryCount = 0;
+			this.maxRetryCount = 10;
         }
 
         public Approval Signup(String parentEmail, String token)
@@ -39,7 +43,7 @@ namespace SaferizeSDK
             approvalRequest["user"]["token"] = token;
             approvalRequest.Add("parent", new JObject());
             (approvalRequest["parent"] as JObject).Add("email", parentEmail);
-
+            
             try{
                 string jsonResponse = connection.Post("/approval", approvalRequest.ToString());
                 Approval approval = JsonConvert.DeserializeObject<Approval>(jsonResponse);
@@ -54,10 +58,12 @@ namespace SaferizeSDK
         {
             try
             {
+				
                 CreateSession(usertoken);
                 socket = connection.CreateWebSocketConnection(websocketUrl + "?id=" + session.Id);
                 socket.SubscribeToEvent(ReceiveMessage);
-                socket.OpenConnection();
+				socket.SetConnectionClose(CloseConnectionCallback);
+				socket.OpenConnection();
             }
             catch (WebException exception)
             {
@@ -75,17 +81,22 @@ namespace SaferizeSDK
             }
         }
 
-        private void ReceiveMessage(MessageReceivedEventArgs e)
+		private void ReceiveMessage(WebSocketSharp.MessageEventArgs e)
         {
-            SaferizeEvent evt =  JsonConvert.DeserializeObject<SaferizeEvent>(e.Message);
+			if("&".Equals(e.Data))
+			{
+				return;
+			}
 
+			SaferizeEvent evt =  JsonConvert.DeserializeObject<SaferizeEvent>(e.Data);
+            
             switch (evt.EventType)
             {
                 case "ApprovalStatusChangedEvent":
-                    HandleApprovalStatusChangedEvent(JsonConvert.DeserializeObject<ApprovalStatusChangedEvent>(e.Message));
+					HandleApprovalStatusChangedEvent(JsonConvert.DeserializeObject<ApprovalStatusChangedEvent>(e.Data));
                     break;
                 case "ApprovalStateChangedEvent":
-                    HandleApprovalStateChangedEvent(JsonConvert.DeserializeObject<ApprovalStateChangedEvent>(e.Message));
+                    HandleApprovalStateChangedEvent(JsonConvert.DeserializeObject<ApprovalStateChangedEvent>(e.Data));
                     break;
                 case "UsageTimerTimeIsUpEvent":
                     OnTimeIsUp?.Invoke();
@@ -95,7 +106,18 @@ namespace SaferizeSDK
             }
         }
 
-
+		private void CloseConnectionCallback(WebSocketSharp.CloseEventArgs e)
+		{
+			if (e.Reason == "SocketWaitTimeExceeded" && reconnectTryCount < maxRetryCount)
+            {
+				ConnectUser(session.Approval.AppUser.Token);
+				reconnectTryCount++;
+			}else{
+				//show the pinworkflow
+				Console.WriteLine("directing to the pin workflow");
+			}
+		}
+      
         private void HandleApprovalStatusChangedEvent(ApprovalStatusChangedEvent evt)
         {
             switch (evt.Entity.Status)
@@ -125,6 +147,12 @@ namespace SaferizeSDK
 
         private void HandleWebException(WebException exception)
         {
+			if(exception.Response == null)
+			{
+				Console.WriteLine("connection timed out");
+				return;
+			}
+
             var resp = new StreamReader(exception.Response.GetResponseStream()).ReadToEnd();
 
             GameSessionException gameSessionException = JsonConvert.DeserializeObject<GameSessionException>(resp);

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using SaferizeSDK;
-using WebSocket4Net;
+using System.Net.NetworkInformation;
 
 namespace SaferizeTester {
     
@@ -44,6 +44,7 @@ namespace SaferizeTester {
             };
 
 			saferize.ConnectUser(mockToken);
+            
             Console.ReadLine();
         }
 	}
