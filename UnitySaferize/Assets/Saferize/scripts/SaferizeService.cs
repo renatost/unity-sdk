@@ -26,10 +26,11 @@ public class SaferizeService : MonoBehaviour {
 	public GameObject OnRevoke;
 	public GameObject OnResume;
 	private GameObject OpenEventPanel;
-
+    
 	//Parent Interaction
 	public GameObject SignUpPanel;
 	public GameObject CurrentUserPanel;
+	public GameObject PINInputPanel;
 	private GameObject OpenParentInteractionPanel;
 
 	public readonly static Queue<Action> ExecuteOnMainThread = new Queue<Action>();
@@ -88,6 +89,21 @@ public class SaferizeService : MonoBehaviour {
 	}
 
 	private void RegisterEventHandlers(){
+		_saferize.OnOfflineStart += delegate {
+			ExecuteOnMainThread.Enqueue(() =>
+			{
+				if (OpenEventPanel != null) Destroy(OpenEventPanel);
+				OpenEventPanel = Instantiate(PINInputPanel);
+				OpenEventPanel.gameObject.GetComponent<ISaferizeOnOfflineStart>().OnOfflineStart();
+			});
+		};
+
+		_saferize.OnOfflineEnd += delegate {
+			if (OpenEventPanel.GetType() == PINInputPanel.GetType()){
+				OpenEventPanel.gameObject.GetComponent<ISaferizeOnOfflineEnd>().OnOfflineEnd();
+			}
+		};
+
 		_saferize.OnPause += delegate {
 			ExecuteOnMainThread.Enqueue(() => {
 				if(OpenEventPanel != null) Destroy(OpenEventPanel);

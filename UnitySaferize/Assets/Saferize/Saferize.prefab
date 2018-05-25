@@ -9,17 +9,17 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1054051769086066}
+  m_RootGameObject: {fileID: 1327499694609066}
   m_IsPrefabParent: 1
---- !u!1 &1054051769086066
+--- !u!1 &1327499694609066
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 224982242049105480}
-  - component: {fileID: 114505941937440924}
+  - component: {fileID: 224436136241582200}
+  - component: {fileID: 114075328832379116}
   m_Layer: 5
   m_Name: Saferize
   m_TagString: Saferize
@@ -27,12 +27,12 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &114505941937440924
+--- !u!114 &114075328832379116
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1054051769086066}
+  m_GameObject: {fileID: 1327499694609066}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: efb8e02b46098453695f41be4758b2bd, type: 3}
@@ -50,12 +50,14 @@ MonoBehaviour:
     type: 2}
   CurrentUserPanel: {fileID: 1914822508480012, guid: cd0e518e26c7c4d0e9d0319848bf7591,
     type: 2}
---- !u!224 &224982242049105480
+  PINInputPanel: {fileID: 1632899504092666, guid: 47508197b2bdf420bb9308049ad58f9b,
+    type: 2}
+--- !u!224 &224436136241582200
 RectTransform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1054051769086066}
+  m_GameObject: {fileID: 1327499694609066}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}

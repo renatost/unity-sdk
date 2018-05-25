@@ -26,3 +26,13 @@ public interface ISaferizeOnConnect
 {
 	void OnConnect();
 }
+
+public interface ISaferizeOnOfflineStart
+{
+	void OnOfflineStart();
+}
+
+public interface ISaferizeOnOfflineEnd
+{
+	void OnOfflineEnd();
+}
