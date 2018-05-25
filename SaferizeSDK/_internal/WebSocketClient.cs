@@ -65,6 +65,14 @@ namespace SaferizeSDK
                 action(e);
             });
         }
+
+		public void SetConnectionOpen(Action<System.EventArgs> action)
+		{
+			_socket.OnOpen += ((object sender, System.EventArgs e) =>
+			{
+				action(e);
+			});
+		}
         
     }
 }

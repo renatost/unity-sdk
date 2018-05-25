@@ -20,11 +20,15 @@ namespace SaferizeSDK
         public delegate void ResumeEventDelegate();
         public delegate void TimeIsUpEventDelegate();
         public delegate void RevokeEventDelegate();
+		public delegate void OfflineWorkflowStartEventDelegate();
+		public delegate void OfflineWorkflowEndEventDelegate();
 
         public event PauseEventDelegate OnPause;
         public event ResumeEventDelegate OnResume;
         public event TimeIsUpEventDelegate OnTimeIsUp;
         public event RevokeEventDelegate OnRevoke;
+		public event OfflineWorkflowStartEventDelegate OnOfflineStart;
+		public event OfflineWorkflowEndEventDelegate OnOfflineEnd;
 
         public Saferize(String privateKey, String saferizeUrl, String websocketUrl, String apiKey)
         {
@@ -49,7 +53,7 @@ namespace SaferizeSDK
                 Approval approval = JsonConvert.DeserializeObject<Approval>(jsonResponse);
                 return approval;
             }catch(WebException exception){
-                HandleWebException(exception);
+				HandleSignupWebException(exception);
                 return null;
             }
         }
@@ -63,11 +67,12 @@ namespace SaferizeSDK
                 socket = connection.CreateWebSocketConnection(websocketUrl + "?id=" + session.Id);
                 socket.SubscribeToEvent(ReceiveMessage);
 				socket.SetConnectionClose(CloseConnectionCallback);
+				socket.SetConnectionOpen(OpenConnectionCallback);
 				socket.OpenConnection();
             }
             catch (WebException exception)
             {
-                HandleWebException(exception);
+                HandleConnectUserWebException(exception);
             }
         }
 
@@ -105,6 +110,13 @@ namespace SaferizeSDK
                     break;
             }
         }
+        
+		private void OpenConnectionCallback(System.EventArgs eventArgs)
+		{
+			Console.WriteLine("we successfully opened a connection");
+			reconnectTryCount = 0;
+			OnOfflineEnd?.Invoke();
+		}
 
 		private void CloseConnectionCallback(WebSocketSharp.CloseEventArgs e)
 		{
@@ -145,11 +157,23 @@ namespace SaferizeSDK
             }
         }
 
-        private void HandleWebException(WebException exception)
+		private void HandleSignupWebException(WebException exception)
+		{
+			if(exception.Response == null)
+			{
+				return;
+			}
+		}
+
+		private void HandleConnectUserWebException(WebException exception)
         {
 			if(exception.Response == null)
 			{
 				Console.WriteLine("connection timed out");
+				Console.WriteLine("direct to pinworkflow");
+
+				//this should only be run if this is off of failing to ConnectUser; SignUp is a different flow
+				OnOfflineStart?.Invoke();
 				return;
 			}
 

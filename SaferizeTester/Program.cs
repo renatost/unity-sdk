@@ -21,10 +21,18 @@ namespace SaferizeTester {
 
 			Approval approval  = saferize.Signup (mockToken + "@email.com", mockToken);
 
-            Console.WriteLine("approval.id: " + approval.Id);
-            Console.WriteLine("AppUser id: " + approval.AppUser.Id);
-            Console.WriteLine("app Id: " + approval.AppUser.App.Id);
-            Console.WriteLine(approval.AppUser);
+            //Console.WriteLine("approval.id: " + approval.Id);
+            //Console.WriteLine("AppUser id: " + approval.AppUser.Id);
+            //Console.WriteLine("app Id: " + approval.AppUser.App.Id);
+            //Console.WriteLine(approval.AppUser);
+
+			saferize.OnOfflineStart += delegate {
+				Console.WriteLine("entering offline mode");
+			};
+
+			saferize.OnOfflineEnd += delegate {
+				Console.WriteLine("exiting offline mode");
+			};
 
             saferize.OnPause += delegate{
                 Console.WriteLine("paused");
