@@ -16,4 +16,7 @@ public class SampleSaferizeActivator : MonoBehaviour {
 		SaferizeService.Instance ().CloseSaferizeParents ();
 	}
 
+	public void RemoveDatFile(){
+		SaferizeService.Instance().ClearSaferizeData();
+	}
 }

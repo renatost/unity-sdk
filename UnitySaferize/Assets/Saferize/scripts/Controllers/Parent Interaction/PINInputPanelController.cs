@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Security.Cryptography;
+using System.Text;
+using System;
 
 public class PINInputPanelController : MonoBehaviour, ISaferizeOnOfflineStart, ISaferizeOnOfflineEnd {
 	// Use this for initialization
@@ -16,10 +19,12 @@ public class PINInputPanelController : MonoBehaviour, ISaferizeOnOfflineStart, I
 	private string storedPINhash;
 
 	void Start () {
-		//check to see if there is a dat file and if the dat file contains information relating to a pin
 		storedPINhash = SaferizeService.Instance().getSaferizeData().PINhash;
+  
 		if(storedPINhash != null){
 			PINInputPanel.SetActive(true);
+			PIN1.ActivateInputField();
+		    SetupInputHandling();
 		}else{
 			NoPINInputPanel.SetActive(true);
 		}
@@ -41,14 +46,55 @@ public class PINInputPanelController : MonoBehaviour, ISaferizeOnOfflineStart, I
 		wrongPinErrorText.SetActive(false);
 
 		var inputedPin = PIN1.text + PIN2.text + PIN3.text + PIN4.text;
-		Debug.Log(inputedPin);
-		Debug.Log(storedPINhash);
-
-		// NEED TO HASH THE INPUTED PIN BEFORE COMPARING
-		if(storedPINhash != null && storedPINhash == inputedPin){
+		if(storedPINhash != null && storedPINhash == SHA256Hash(inputedPin)){
 			OnOfflineEnd();
 		}else{
 			wrongPinErrorText.SetActive(true);
 		}
 	}
+
+	private string SHA256Hash(string text)
+    {
+        SHA256 sha256 = new SHA256CryptoServiceProvider();
+        sha256.ComputeHash(ASCIIEncoding.ASCII.GetBytes(text));
+        byte[] result = sha256.Hash;
+      
+		return Convert.ToBase64String(result);
+    }
+
+	private void SetupInputHandling(){
+		PIN1.onValueChanged.AddListener((string value) =>
+        {
+            if (value.Length != 0)
+            {
+                PIN2.ActivateInputField();
+            }
+        });
+
+        PIN2.onValueChanged.AddListener((string value) =>
+        {
+            if (value.Length != 0)
+            {
+                PIN3.ActivateInputField();
+            }
+        });
+
+        PIN3.onValueChanged.AddListener((string value) =>
+        {
+            if (value.Length != 0)
+            {
+                PIN4.ActivateInputField();
+            }
+        });
+
+        PIN4.onValueChanged.AddListener((string value) =>
+        {
+            if (value.Length != 0)
+            {
+                PIN4.DeactivateInputField();
+                ComparePIN();
+            }
+        });
+	}
 }
+    
