@@ -7,10 +7,19 @@ using Newtonsoft.Json.Linq;
 namespace SaferizeSDK
 {
     public class Saferize
-    {
+    {   
+
+		private enum OnlineStatusEnum{
+			ONLINE,
+            OFFLINE,
+            UNKNOWN
+		}
+
         private SaferizeConnection connection;
         private WebSocketClient socket;
 		private AppUsageSession session;
+		private String usertoken;
+		private OnlineStatusEnum connectionState;
 
         private string websocketUrl;
 		private int reconnectTryCount;
@@ -22,6 +31,7 @@ namespace SaferizeSDK
         public delegate void RevokeEventDelegate();
 		public delegate void OfflineWorkflowStartEventDelegate();
 		public delegate void OfflineWorkflowEndEventDelegate();
+		public delegate void PINChangeDelegate(string pinHash);
 
         public event PauseEventDelegate OnPause;
         public event ResumeEventDelegate OnResume;
@@ -29,13 +39,15 @@ namespace SaferizeSDK
         public event RevokeEventDelegate OnRevoke;
 		public event OfflineWorkflowStartEventDelegate OnOfflineStart;
 		public event OfflineWorkflowEndEventDelegate OnOfflineEnd;
+		public event PINChangeDelegate OnPINChange;
 
-        public Saferize(String privateKey, String saferizeUrl, String websocketUrl, String apiKey)
+		public Saferize(String privateKey, String saferizeUrl, String websocketUrl, String apiKey)
         {
             connection = new SaferizeConnection(privateKey, saferizeUrl, apiKey);
             this.websocketUrl = websocketUrl;
 			this.reconnectTryCount = 0;
 			this.maxRetryCount = 10;
+			this.connectionState = OnlineStatusEnum.UNKNOWN;
         }
 
         public Approval Signup(String parentEmail, String token)
@@ -58,11 +70,12 @@ namespace SaferizeSDK
             }
         }
 
-        public void ConnectUser(string usertoken)
+        public void ConnectUser(string alias)
         {
-            try
+			usertoken = alias;
+                     
+			try
             {
-				
                 CreateSession(usertoken);
                 socket = connection.CreateWebSocketConnection(websocketUrl + "?id=" + session.Id);
                 socket.SubscribeToEvent(ReceiveMessage);
@@ -75,6 +88,11 @@ namespace SaferizeSDK
                 HandleConnectUserWebException(exception);
             }
         }
+        
+        public void DisconnectUser()
+		{
+			socket.CloseConnection();
+		}
 
         private void CreateSession(String token)
         {
@@ -88,10 +106,6 @@ namespace SaferizeSDK
 
 		private void ReceiveMessage(WebSocketSharp.MessageEventArgs e)
         {
-			if("&".Equals(e.Data))
-			{
-				return;
-			}
 
 			SaferizeEvent evt =  JsonConvert.DeserializeObject<SaferizeEvent>(e.Data);
             
@@ -106,6 +120,10 @@ namespace SaferizeSDK
                 case "UsageTimerTimeIsUpEvent":
                     OnTimeIsUp?.Invoke();
                     break;
+				case "PinChangedEvent":
+					PinChangedEvent pinChanged = JsonConvert.DeserializeObject<PinChangedEvent>(e.Data);
+					OnPINChange?.Invoke(pinChanged.pinHash);
+					break;
                 default:
                     break;
             }
@@ -113,20 +131,21 @@ namespace SaferizeSDK
         
 		private void OpenConnectionCallback(System.EventArgs eventArgs)
 		{
-			Console.WriteLine("we successfully opened a connection");
 			reconnectTryCount = 0;
-			OnOfflineEnd?.Invoke();
+			if(connectionState == OnlineStatusEnum.OFFLINE){
+				OnOfflineEnd?.Invoke();
+			}
+			connectionState = OnlineStatusEnum.ONLINE;
 		}
 
 		private void CloseConnectionCallback(WebSocketSharp.CloseEventArgs e)
 		{
-			if (e.Reason == "SocketWaitTimeExceeded" && reconnectTryCount < maxRetryCount)
+			if ("SocketWaitTimeExceeded".Equals(e.Reason))
             {
-				ConnectUser(session.Approval.AppUser.Token);
-				reconnectTryCount++;
-			}else{
-				//show the pinworkflow
-				Console.WriteLine("directing to the pin workflow");
+				// assume that we just don't have internet
+				StartOfflineWorkflow();
+				// but try connecting anyway
+                ConnectUser(usertoken);
 			}
 		}
       
@@ -165,20 +184,37 @@ namespace SaferizeSDK
 			}
 		}
 
+        private void StartOfflineWorkflow()
+		{
+			if (connectionState == OnlineStatusEnum.OFFLINE)
+			{
+				return;
+			}else{
+				connectionState = OnlineStatusEnum.OFFLINE;
+				OnOfflineStart?.Invoke();
+			}
+		}
+
 		private void HandleConnectUserWebException(WebException exception)
         {
-			if(exception.Response == null)
+   
+			if ("Unable to read data from the transport connection: Connection timed out.".Equals(exception.Message) || exception.Response == null)
 			{
-				Console.WriteLine("connection timed out");
-				Console.WriteLine("direct to pinworkflow");
+				//assume that there is no internet
+				StartOfflineWorkflow();
+                // but keep trying to connect anyway as long as we've not yet hit the maxretrycount
+				reconnectTryCount++;
 
-				//this should only be run if this is off of failing to ConnectUser; SignUp is a different flow
-				OnOfflineStart?.Invoke();
+				if(reconnectTryCount < maxRetryCount){
+					ConnectUser(usertoken);
+				}
+
 				return;
 			}
+            
 
             var resp = new StreamReader(exception.Response.GetResponseStream()).ReadToEnd();
-
+            
             GameSessionException gameSessionException = JsonConvert.DeserializeObject<GameSessionException>(resp);
             switch (gameSessionException.exceptionType)
             {

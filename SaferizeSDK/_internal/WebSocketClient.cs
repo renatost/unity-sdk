@@ -49,12 +49,15 @@ namespace SaferizeSDK
       
 		public void SubscribeToEvent(Action<WebSocketSharp.MessageEventArgs> action)
         {
-			_socket.OnMessage += ((object sender, WebSocketSharp.MessageEventArgs e) =>
-            {
+			_socket.OnMessage += ((object sender, WebSocketSharp.MessageEventArgs e) => {
 				if(e.IsPing){
 					lastPingResponseTime = DateTime.Now;
 				}
-
+                
+			    if("&".Equals(e.Data)){
+				    return;
+			    }
+			                      
                 action(e);
             });
         }

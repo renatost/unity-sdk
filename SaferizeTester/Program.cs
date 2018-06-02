@@ -21,10 +21,10 @@ namespace SaferizeTester {
 
 			Approval approval  = saferize.Signup (mockToken + "@email.com", mockToken);
 
-            //Console.WriteLine("approval.id: " + approval.Id);
-            //Console.WriteLine("AppUser id: " + approval.AppUser.Id);
-            //Console.WriteLine("app Id: " + approval.AppUser.App.Id);
-            //Console.WriteLine(approval.AppUser);
+            Console.WriteLine("approval.id: " + approval.Id);
+            Console.WriteLine("AppUser id: " + approval.AppUser.Id);
+            Console.WriteLine("app Id: " + approval.AppUser.App.Id);
+            Console.WriteLine(approval.AppUser);
 
 			saferize.OnOfflineStart += delegate {
 				Console.WriteLine("entering offline mode");
@@ -50,6 +50,11 @@ namespace SaferizeTester {
             saferize.OnRevoke += delegate {
                 Console.WriteLine("on reject");
             };
+
+			saferize.OnPINChange += ((string pinHash) =>
+			{
+				Console.WriteLine("we got the pin change and the pinHash is: " + pinHash);
+			});
 
 			saferize.ConnectUser(mockToken);
             

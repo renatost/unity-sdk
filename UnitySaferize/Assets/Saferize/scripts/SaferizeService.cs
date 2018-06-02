@@ -42,12 +42,24 @@ public class SaferizeService : MonoBehaviour {
 		return instance;
 	}
 
-	void Awake () {
-		_saferize = new Saferize (saferizePrivateKey.Trim (), saferizeUrl.Trim (), saferizeWebsocketUrl.Trim (), saferizeApiKey.Trim ());
-		saferizeFileName = Application.persistentDataPath + "/saferize.dat";
+	void Awake () {      
 
-		RegisterEventHandlers ();
-		createAppUserSession ();
+		_saferize = new Saferize(saferizePrivateKey.Trim(), saferizeUrl.Trim(), saferizeWebsocketUrl.Trim(), saferizeApiKey.Trim());
+        saferizeFileName = Application.persistentDataPath + "/saferize.dat";
+
+        if (instance == null)
+        {
+            instance = this;
+            RegisterEventHandlers();
+            createAppUserSession();
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
 	}
 
 	void Update()
@@ -61,6 +73,8 @@ public class SaferizeService : MonoBehaviour {
 	void OnApplicationPause(bool applicationWentIntoBackground){
 		if (applicationWentIntoBackground == false) {
 			createAppUserSession ();
+		}else{
+			_saferize.DisconnectUser();
 		}
 	}
 
@@ -99,7 +113,8 @@ public class SaferizeService : MonoBehaviour {
 		};
 
 		_saferize.OnOfflineEnd += delegate {
-			if (OpenEventPanel.GetType() == PINInputPanel.GetType()){
+			
+			if (OpenEventPanel != null && OpenEventPanel.GetType() == PINInputPanel.GetType()){
 				OpenEventPanel.gameObject.GetComponent<ISaferizeOnOfflineEnd>().OnOfflineEnd();
 			}
 		};
@@ -135,11 +150,17 @@ public class SaferizeService : MonoBehaviour {
 				OpenEventPanel.gameObject.GetComponent<ISaferizeOnTimeIsUp>().OnTimeIsUp();
 			});
 		};
+
+		_saferize.OnPINChange += ((string pinHash) =>
+		{
+			_saferizeData.PINhash = pinHash;
+			SaveFile(_saferizeData);
+		});
 	}
 
 	public void SignUp (string parentEmail, string token) {
 		Approval approval = _saferize.Signup (parentEmail, token);
-
+        
 		SaferizeData data = new SaferizeData ();
 
 		data.lastLogin = DateTime.UtcNow;
@@ -149,6 +170,7 @@ public class SaferizeService : MonoBehaviour {
 		_saferizeData = data;
 		SaveFile (data);
 		_saferize.ConnectUser (token);
+        
 	}
 
 	public void OpenSaferizeParents(){
