@@ -90,8 +90,11 @@ namespace SaferizeSDK
         }
         
         public void DisconnectUser()
-		{
-			socket.CloseConnection();
+		{   
+			if(socket != null){
+				socket.CloseConnection();
+				reconnectTryCount = 0;
+			}
 		}
 
         private void CreateSession(String token)
