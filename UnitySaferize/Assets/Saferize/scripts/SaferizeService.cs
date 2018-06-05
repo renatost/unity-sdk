@@ -86,7 +86,7 @@ public class SaferizeService : MonoBehaviour {
 				_saferizeData = binaryFormatter.Deserialize (filestream) as SaferizeData;
 				_saferizeData.lastLogin = DateTime.UtcNow;
 				filestream.Dispose();
-
+                
 				SaveFile(_saferizeData);
 				_saferize.ConnectUser (_saferizeData.token);
 			}
@@ -159,18 +159,27 @@ public class SaferizeService : MonoBehaviour {
 	}
 
 	public void SignUp (string parentEmail, string token) {
-		Approval approval = _saferize.Signup (parentEmail, token);
-        
-		SaferizeData data = new SaferizeData ();
+		try{
+			Approval approval = _saferize.Signup(parentEmail, token);
 
-		data.lastLogin = DateTime.UtcNow;
-		data.token = approval.AppUser.Token;
-		data.parentEmail = approval.ParentEmail;
+            if (approval == null)
+            {
+                return;
+            }
+            else
+            {
+                SaferizeData data = new SaferizeData();
 
-		_saferizeData = data;
-		SaveFile (data);
-		_saferize.ConnectUser (token);
-        
+                data.lastLogin = DateTime.UtcNow;
+                data.token = approval.AppUser.Token;
+                data.parentEmail = approval.ParentEmail;
+                _saferizeData = data;
+
+                SaveFile(data);
+            }
+		}catch(Exception e){
+			Debug.Log("error for sign up was: " + e);
+		}
 	}
 
 	public void OpenSaferizeParents(){

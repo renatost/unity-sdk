@@ -63,7 +63,15 @@ namespace SaferizeSDK
             try{
                 string jsonResponse = connection.Post("/approval", approvalRequest.ToString());
                 Approval approval = JsonConvert.DeserializeObject<Approval>(jsonResponse);
-                return approval;
+				if (Approval.StatusEnum.REJECTED == approval.Status)
+				{
+					OnRevoke?.Invoke();
+					return null;
+				}else{
+					ConnectUser(token);
+					return approval;
+				}
+                
             }catch(WebException exception){
 				HandleSignupWebException(exception);
                 return null;
