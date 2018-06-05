@@ -7,6 +7,8 @@
 UnitySaferize/Assets/AssetStoreTools/
 UnitySaferize/Assets/AssetStoreTools.meta
 SaferizeSDK/libs/
+PT_Sans.meta
+saferize-logo.png.meta
 
 # Visual Studio cache directory
 */.vs/*
@@ -27,6 +29,7 @@ ExportedObj/
 *.booproj
 *.svd
 *.pdb
+
 
 # Unity3D generated meta files
 *.pidb.meta
