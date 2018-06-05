@@ -78,7 +78,7 @@ namespace SaferizeSDK
             }
         }
 
-        public void ConnectUser(string alias)
+		public Approval ConnectUser(string alias)
         {
 			usertoken = alias;
                      
@@ -90,10 +90,12 @@ namespace SaferizeSDK
 				socket.SetConnectionClose(CloseConnectionCallback);
 				socket.SetConnectionOpen(OpenConnectionCallback);
 				socket.OpenConnection();
+				return session.Approval;
             }
             catch (WebException exception)
             {
                 HandleConnectUserWebException(exception);
+				return null;
             }
         }
         

@@ -19,7 +19,7 @@ public class SaferizeService : MonoBehaviour {
 	public string saferizeUrl;
 	public string saferizeWebsocketUrl;
 	public string saferizeApiKey;
-
+   
 	//Events
 	public GameObject OnPause;
 	public GameObject OnTimeIsUp;
@@ -84,11 +84,13 @@ public class SaferizeService : MonoBehaviour {
 
 			using (FileStream filestream = File.Open (saferizeFileName, FileMode.Open)) {
 				_saferizeData = binaryFormatter.Deserialize (filestream) as SaferizeData;
-				_saferizeData.lastLogin = DateTime.UtcNow;
 				filestream.Dispose();
-                
+
+				Approval approval = _saferize.ConnectUser (_saferizeData.token);
+
+				_saferizeData.approval = (approval == null ? _saferizeData.approval : approval);
+				_saferizeData.lastLogin = DateTime.UtcNow;
 				SaveFile(_saferizeData);
-				_saferize.ConnectUser (_saferizeData.token);
 			}
 		}
 	}
@@ -173,8 +175,10 @@ public class SaferizeService : MonoBehaviour {
                 data.lastLogin = DateTime.UtcNow;
                 data.token = approval.AppUser.Token;
                 data.parentEmail = approval.ParentEmail;
-                _saferizeData = data;
+				data.approval = approval;
 
+                _saferizeData = data;
+                
                 SaveFile(data);
             }
 		}catch(Exception e){

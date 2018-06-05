@@ -5,9 +5,12 @@ using UnityEngine;
 public class CurrentUserPanelController : MonoBehaviour {
 	public UnityEngine.UI.Text emailControlText;
 
+	private SaferizeData _saferizeData;
+    
 	void Start () {
-		if (SaferizeService.Instance ().getSaferizeData () != null) {
-			emailControlText.text = "This app is managed by: \n" + SaferizeService.Instance ().getSaferizeData ().parentEmail;		
+		_saferizeData = SaferizeService.Instance().getSaferizeData();
+		if (_saferizeData != null) {
+			emailControlText.text = "This app is managed by: \n" + _saferizeData.approval.ParentEmail;		
 		}
 	}
 
