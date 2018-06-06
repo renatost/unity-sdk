@@ -189,11 +189,23 @@ public class SaferizeService : MonoBehaviour {
 	public void OpenSaferizeParents(){
 
 		if (_saferizeData != null) {
-			OpenParentInteractionPanel = Instantiate (CurrentUserPanel);
+			OpenCurrentUserPanel();
 		} else {
-			OpenParentInteractionPanel = Instantiate (SignUpPanel);
+			OpenSignUpPanel();
 		}
+	}
 
+	public void OpenCurrentUserPanel()
+	{
+		if (OpenParentInteractionPanel != null) Destroy(OpenParentInteractionPanel);
+		OpenParentInteractionPanel = Instantiate(CurrentUserPanel);
+		Time.timeScale = 0;
+	}
+
+	public void OpenSignUpPanel()
+	{
+		if (OpenParentInteractionPanel != null) Destroy(OpenParentInteractionPanel);
+		OpenParentInteractionPanel = Instantiate(SignUpPanel);
 		Time.timeScale = 0;
 	}
 
