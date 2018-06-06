@@ -5,7 +5,7 @@ using UnityEngine;
 public class SampleSaferizeActivator : MonoBehaviour {
 
 	void Awake(){
-		SaferizeService.Instance ().ClearSaferizeData ();
+		//SaferizeService.Instance ().ClearSaferizeData ();
 	}
 
 	public void OpenSaferize(){

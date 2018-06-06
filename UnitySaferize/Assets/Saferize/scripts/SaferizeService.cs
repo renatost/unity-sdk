@@ -19,7 +19,7 @@ public class SaferizeService : MonoBehaviour {
 	public string saferizeUrl;
 	public string saferizeWebsocketUrl;
 	public string saferizeApiKey;
-
+   
 	//Events
 	public GameObject OnPause;
 	public GameObject OnTimeIsUp;
@@ -84,11 +84,13 @@ public class SaferizeService : MonoBehaviour {
 
 			using (FileStream filestream = File.Open (saferizeFileName, FileMode.Open)) {
 				_saferizeData = binaryFormatter.Deserialize (filestream) as SaferizeData;
-				_saferizeData.lastLogin = DateTime.UtcNow;
 				filestream.Dispose();
 
+				Approval approval = _saferize.ConnectUser (_saferizeData.token);
+
+				_saferizeData.approval = (approval == null ? _saferizeData.approval : approval);
+				_saferizeData.lastLogin = DateTime.UtcNow;
 				SaveFile(_saferizeData);
-				_saferize.ConnectUser (_saferizeData.token);
 			}
 		}
 	}
@@ -159,28 +161,51 @@ public class SaferizeService : MonoBehaviour {
 	}
 
 	public void SignUp (string parentEmail, string token) {
-		Approval approval = _saferize.Signup (parentEmail, token);
-        
-		SaferizeData data = new SaferizeData ();
+		try{
+			Approval approval = _saferize.Signup(parentEmail, token);
 
-		data.lastLogin = DateTime.UtcNow;
-		data.token = approval.AppUser.Token;
-		data.parentEmail = approval.ParentEmail;
+            if (approval == null)
+            {
+                return;
+            }
+            else
+            {
+                SaferizeData data = new SaferizeData();
 
-		_saferizeData = data;
-		SaveFile (data);
-		_saferize.ConnectUser (token);
-        
+                data.lastLogin = DateTime.UtcNow;
+                data.token = approval.AppUser.Token;
+                data.parentEmail = approval.ParentEmail;
+				data.approval = approval;
+
+                _saferizeData = data;
+                
+                SaveFile(data);
+            }
+		}catch(Exception e){
+			Debug.Log("error for sign up was: " + e);
+		}
 	}
 
 	public void OpenSaferizeParents(){
 
 		if (_saferizeData != null) {
-			OpenParentInteractionPanel = Instantiate (CurrentUserPanel);
+			OpenCurrentUserPanel();
 		} else {
-			OpenParentInteractionPanel = Instantiate (SignUpPanel);
+			OpenSignUpPanel();
 		}
+	}
 
+	public void OpenCurrentUserPanel()
+	{
+		if (OpenParentInteractionPanel != null) Destroy(OpenParentInteractionPanel);
+		OpenParentInteractionPanel = Instantiate(CurrentUserPanel);
+		Time.timeScale = 0;
+	}
+
+	public void OpenSignUpPanel()
+	{
+		if (OpenParentInteractionPanel != null) Destroy(OpenParentInteractionPanel);
+		OpenParentInteractionPanel = Instantiate(SignUpPanel);
 		Time.timeScale = 0;
 	}
 

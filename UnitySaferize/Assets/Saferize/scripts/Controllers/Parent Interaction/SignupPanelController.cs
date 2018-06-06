@@ -36,4 +36,10 @@ public class SignupPanelController : MonoBehaviour {
 	public void CloseSaferize(){
 		SaferizeService.Instance().CloseSaferizeParents();
 	}
+
+	public void ShowSignup(){
+		ThanksContainer.SetActive(false);
+		InputContainer.SetActive(true);
+	}
+    
 }

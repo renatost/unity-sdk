@@ -19,13 +19,6 @@ namespace SaferizeTester {
 			string mockToken = "token" + unixTimestamp;
 			Console.WriteLine(mockToken);
 
-			Approval approval  = saferize.Signup (mockToken + "@email.com", mockToken);
-
-            Console.WriteLine("approval.id: " + approval.Id);
-            Console.WriteLine("AppUser id: " + approval.AppUser.Id);
-            Console.WriteLine("app Id: " + approval.AppUser.App.Id);
-            Console.WriteLine(approval.AppUser);
-
 			saferize.OnOfflineStart += delegate {
 				Console.WriteLine("entering offline mode");
 			};
@@ -56,8 +49,15 @@ namespace SaferizeTester {
 				Console.WriteLine("we got the pin change and the pinHash is: " + pinHash);
 			});
 
+			Approval approval = saferize.Signup(mockToken + "@email.com", mockToken);
+            
 			saferize.ConnectUser(mockToken);
             
+			Console.WriteLine("approval.id: " + approval.Id);
+            Console.WriteLine("AppUser id: " + approval.AppUser.Id);
+            Console.WriteLine("app Id: " + approval.AppUser.App.Id);
+            Console.WriteLine(approval.AppUser);
+
             Console.ReadLine();
         }
 	}

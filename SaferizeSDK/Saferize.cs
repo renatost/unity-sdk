@@ -63,14 +63,22 @@ namespace SaferizeSDK
             try{
                 string jsonResponse = connection.Post("/approval", approvalRequest.ToString());
                 Approval approval = JsonConvert.DeserializeObject<Approval>(jsonResponse);
-                return approval;
+				if (Approval.StatusEnum.REJECTED == approval.Status)
+				{
+					OnRevoke?.Invoke();
+					return null;
+				}else{
+					ConnectUser(token);
+					return approval;
+				}
+                
             }catch(WebException exception){
 				HandleSignupWebException(exception);
                 return null;
             }
         }
 
-        public void ConnectUser(string alias)
+		public Approval ConnectUser(string alias)
         {
 			usertoken = alias;
                      
@@ -82,10 +90,12 @@ namespace SaferizeSDK
 				socket.SetConnectionClose(CloseConnectionCallback);
 				socket.SetConnectionOpen(OpenConnectionCallback);
 				socket.OpenConnection();
+				return session.Approval;
             }
             catch (WebException exception)
             {
                 HandleConnectUserWebException(exception);
+				return null;
             }
         }
         
