@@ -3,12 +3,9 @@
 namespace SaferizeSDK
 {
     [Serializable]
-    public class AppUsageSession
+    class AppUserChangedAppFeaturesEvent : SaferizeEvent
     {
-        public int Id;
-
-        public Approval Approval;
-
+		public AppUser Entity;
 		public AppFeature[] Features;
     }
 }

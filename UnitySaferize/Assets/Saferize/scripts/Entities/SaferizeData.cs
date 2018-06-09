@@ -8,4 +8,5 @@ public class SaferizeData {
 	public string parentEmail;
 	public string PINhash;
 	public Approval approval;
+	public AppFeature[] appFeatures;
 }

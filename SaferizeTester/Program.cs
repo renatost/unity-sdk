@@ -16,7 +16,7 @@ namespace SaferizeTester {
             Saferize saferize = new Saferize(PRIVATE_KEY, SAFERIZE_URL, WEBSOCKET_URL, API_KEY);
 			Int32 unixTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
-			string mockToken = "token" + unixTimestamp;
+			string mockToken = "eric" + unixTimestamp;
 			Console.WriteLine(mockToken);
 
 			saferize.OnOfflineStart += delegate {
@@ -49,9 +49,17 @@ namespace SaferizeTester {
 				Console.WriteLine("we got the pin change and the pinHash is: " + pinHash);
 			});
 
-			Approval approval = saferize.Signup(mockToken + "@email.com", mockToken);
+
+			saferize.OnAppFeaturesChange += ((AppFeature[] appFeatures) =>
+			{
+				Console.WriteLine("Ads are " + appFeatures);
+			});
+				
+			Approval approval = saferize.Signup(mockToken + "@saferize.com", mockToken);
             
-			saferize.ConnectUser(mockToken);
+			// saferize.Signup automatically calls connect user
+            // saferize.ConnectUser is used as a 'login' for a returning user
+			// saferize.ConnectUser(mockToken);
             
 			Console.WriteLine("approval.id: " + approval.Id);
             Console.WriteLine("AppUser id: " + approval.AppUser.Id);
@@ -60,5 +68,5 @@ namespace SaferizeTester {
 
             Console.ReadLine();
         }
-	}
+	},, 
 }

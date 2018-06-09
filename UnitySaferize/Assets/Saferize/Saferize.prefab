@@ -9,17 +9,17 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1327499694609066}
+  m_RootGameObject: {fileID: 1933501095991674}
   m_IsPrefabParent: 1
---- !u!1 &1327499694609066
+--- !u!1 &1933501095991674
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 224436136241582200}
-  - component: {fileID: 114075328832379116}
+  - component: {fileID: 224840337157108364}
+  - component: {fileID: 114828400986172362}
   m_Layer: 5
   m_Name: Saferize
   m_TagString: Saferize
@@ -27,12 +27,12 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &114075328832379116
+--- !u!114 &114828400986172362
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1327499694609066}
+  m_GameObject: {fileID: 1933501095991674}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: efb8e02b46098453695f41be4758b2bd, type: 3}
@@ -46,18 +46,38 @@ MonoBehaviour:
   OnTimeIsUp: {fileID: 1036681651614596, guid: e88b9076dc91d4e389bbcb27245b9636, type: 2}
   OnRevoke: {fileID: 1069594972917408, guid: 153207b0221e842f08c4a19c40df4574, type: 2}
   OnResume: {fileID: 1897960305298520, guid: e08329b59cf324e93a2ccdd16dab8ccd, type: 2}
+  OnAdvertisingFeatureChange: {fileID: 1055777788775284, guid: 70bef2024bdcd48069208460abca9426,
+    type: 2}
+  OnChatFeatureChange: {fileID: 1914020118361226, guid: 10e602758f7c04bdaad89c6b41d4f637,
+    type: 2}
+  OnCommentsFeatureChange: {fileID: 1278003084048724, guid: 39eb7cf770435420caa9a72fdf3528a1,
+    type: 2}
+  OnDataCollectionFeatureChange: {fileID: 1729669181291836, guid: 319ab79e0343544c3bcd56ade5293564,
+    type: 2}
+  OnInAppPurchasesFeatureChange: {fileID: 1796674343003292, guid: eaf26c391321942eb95c89c473c4f479,
+    type: 2}
+  OnLocationSharingFeatureChange: {fileID: 1672895179209368, guid: b2f92abbdabf241aeb2ab97876c7fa69,
+    type: 2}
+  OnPaidAppFeatureChange: {fileID: 1888285904387552, guid: 3b612094a4cf64d789a1088d161099fb,
+    type: 2}
+  OnPushNotificationFeatureChange: {fileID: 1579972145181838, guid: 5c13fe5a935c04b9f929746ecd1ddd01,
+    type: 2}
+  OnSocialInteractionsFeatureChange: {fileID: 1738152400651830, guid: 47f314375d7e143c599d9776e0dd67b6,
+    type: 2}
+  OnSubscriptionFeatureChange: {fileID: 1961032940631136, guid: 72baf1e90ee0c437cb6fa83181922083,
+    type: 2}
   SignUpPanel: {fileID: 1085306285115916, guid: fbf9e979ac16d4e7080daedfcfa955be,
     type: 2}
   CurrentUserPanel: {fileID: 1914822508480012, guid: cd0e518e26c7c4d0e9d0319848bf7591,
     type: 2}
   PINInputPanel: {fileID: 1632899504092666, guid: 47508197b2bdf420bb9308049ad58f9b,
     type: 2}
---- !u!224 &224436136241582200
+--- !u!224 &224840337157108364
 RectTransform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1327499694609066}
+  m_GameObject: {fileID: 1933501095991674}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}

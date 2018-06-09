@@ -32,6 +32,7 @@ namespace SaferizeSDK
 		public delegate void OfflineWorkflowStartEventDelegate();
 		public delegate void OfflineWorkflowEndEventDelegate();
 		public delegate void PINChangeDelegate(string pinHash);
+		public delegate void AppFeaturesChangeDelegate(AppFeature[] appFeatures);
 
         public event PauseEventDelegate OnPause;
         public event ResumeEventDelegate OnResume;
@@ -40,6 +41,7 @@ namespace SaferizeSDK
 		public event OfflineWorkflowStartEventDelegate OnOfflineStart;
 		public event OfflineWorkflowEndEventDelegate OnOfflineEnd;
 		public event PINChangeDelegate OnPINChange;
+		public event AppFeaturesChangeDelegate OnAppFeaturesChange;
 
 		public Saferize(String privateKey, String saferizeUrl, String websocketUrl, String apiKey)
         {
@@ -78,7 +80,7 @@ namespace SaferizeSDK
             }
         }
 
-		public Approval ConnectUser(string alias)
+		public AppUsageSession ConnectUser(string alias)
         {
 			usertoken = alias;
                      
@@ -90,7 +92,8 @@ namespace SaferizeSDK
 				socket.SetConnectionClose(CloseConnectionCallback);
 				socket.SetConnectionOpen(OpenConnectionCallback);
 				socket.OpenConnection();
-				return session.Approval;
+
+				return session;
             }
             catch (WebException exception)
             {
@@ -112,6 +115,7 @@ namespace SaferizeSDK
             string jsonResponse = connection.Post("/session/app/" + token, "");
             this.session = JsonConvert.DeserializeObject<AppUsageSession>(jsonResponse);
 
+			//TODO: we might not need this anymore; should dbl check 
             if(session.Approval.CurrentState == Approval.StateEnum.PAUSED){
                 OnPause?.Invoke();
             }
@@ -137,6 +141,10 @@ namespace SaferizeSDK
 					PinChangedEvent pinChanged = JsonConvert.DeserializeObject<PinChangedEvent>(e.Data);
 					OnPINChange?.Invoke(pinChanged.pinHash);
 					break;
+				case "AppUserChangedAppFeaturesEvent":
+					AppUserChangedAppFeaturesEvent appFeaturesChangedEvent = JsonConvert.DeserializeObject<AppUserChangedAppFeaturesEvent>(e.Data);
+					OnAppFeaturesChange?.Invoke(appFeaturesChangedEvent.Features);
+					break;
                 default:
                     break;
             }
@@ -145,9 +153,7 @@ namespace SaferizeSDK
 		private void OpenConnectionCallback(System.EventArgs eventArgs)
 		{
 			reconnectTryCount = 0;
-			if(connectionState == OnlineStatusEnum.OFFLINE){
-				OnOfflineEnd?.Invoke();
-			}
+			EndOfflineWorkflow();
 			connectionState = OnlineStatusEnum.ONLINE;
 		}
 
@@ -208,6 +214,14 @@ namespace SaferizeSDK
 			}
 		}
 
+		private void EndOfflineWorkflow()
+		{
+			if (connectionState == OnlineStatusEnum.OFFLINE)
+            {
+                OnOfflineEnd?.Invoke();
+            }
+		}
+
 		private void HandleConnectUserWebException(WebException exception)
         {
    
@@ -252,4 +266,3 @@ namespace SaferizeSDK
         }
     }
 }
-
