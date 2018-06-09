@@ -11,5 +11,6 @@ namespace SaferizeSDK
 
         public App App;
 
+		public AppFeature[] appFeature;
     }
 }
