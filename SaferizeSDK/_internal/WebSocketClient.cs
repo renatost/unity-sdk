@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using WebSocket4Net;
+using WebSocketSharp;
+using System.Threading;
 
 namespace SaferizeSDK
 {
@@ -9,54 +10,72 @@ namespace SaferizeSDK
         WebSocket _socket;
         private String webSockerUrl;
         private SaferizeConnection saferizeConnection;
+		private DateTime lastPingResponseTime;
+		private int maxPingResponseWaitTime;
+		private Timer timer;
+
         public WebSocketClient(String websocketUrl, SaferizeConnection saferizeConnection)
         {
-            this.saferizeConnection = saferizeConnection;
-            this.webSockerUrl = websocketUrl;
-            List<KeyValuePair<string, string>> customHeaders = new List<KeyValuePair<string, string>>();
+			this.webSockerUrl = websocketUrl;
+			this.saferizeConnection = saferizeConnection;
+			_socket = new WebSocket(webSockerUrl);
+			_socket.EmitOnPing = true;
+			_socket.CustomHeaders = new Dictionary<string, string> {
+				{"Authorization", "Bearer " + saferizeConnection.GetJWTSignature()},
+			};
 
-            customHeaders.Add(new KeyValuePair<string, string>("Authorization", "Bearer " + saferizeConnection.GetJWTSignature()));
-
-            _socket = new WebSocket(this.webSockerUrl, null, null, customHeaders, null, WebSocketVersion.Rfc6455);
-
+			maxPingResponseWaitTime = 5;
+			timer = new Timer(checkSocketState, this, maxPingResponseWaitTime * 1000, maxPingResponseWaitTime * 1000);
         }
+        
+		private void checkSocketState(object state)
+		{
+			if(lastPingResponseTime != DateTime.MinValue && DateTime.Now.Subtract(lastPingResponseTime).TotalSeconds > maxPingResponseWaitTime)
+			{
+				_socket.Close(WebSocketSharp.CloseStatusCode.Away, "SocketWaitTimeExceeded");
+				timer.Dispose();
+			}
+		}
 
         public void CloseConnection()
         {
             _socket.Close();
         }
-
+        
         public void OpenConnection()
         {
-            _socket.Open();
+			_socket.Connect();
         }
-
-        public void SendMessage(string message)
+      
+		public void SubscribeToEvent(Action<WebSocketSharp.MessageEventArgs> action)
         {
-            _socket.Send(message);
-        }
-
-        public void SubscribeToEvent(Action<MessageReceivedEventArgs> action)
-        {
-            _socket.MessageReceived += new EventHandler<WebSocket4Net.MessageReceivedEventArgs>((object sender, MessageReceivedEventArgs e) =>
-            {
+			_socket.OnMessage += ((object sender, WebSocketSharp.MessageEventArgs e) => {
+				if(e.IsPing){
+					lastPingResponseTime = DateTime.Now;
+				}
+                
+			    if("&".Equals(e.Data)){
+				    return;
+			    }
+			                      
                 action(e);
             });
         }
 
-        public void SetConnectionClose(Action<EventArgs> action)
+		public void SetConnectionClose(Action<WebSocketSharp.CloseEventArgs> action)
         {
-            _socket.Closed += new EventHandler((object sender, EventArgs e) => {
+			_socket.OnClose += ((object sender, WebSocketSharp.CloseEventArgs e) => {
                 action(e);
             });
         }
 
-        public void SetErrorHandler(Action<SuperSocket.ClientEngine.ErrorEventArgs> action)
-        {
-            _socket.Error += new EventHandler<SuperSocket.ClientEngine.ErrorEventArgs>((object sender, SuperSocket.ClientEngine.ErrorEventArgs e) =>
-            {
-                action(e);
-            });
-        }
+		public void SetConnectionOpen(Action<System.EventArgs> action)
+		{
+			_socket.OnOpen += ((object sender, System.EventArgs e) =>
+			{
+				action(e);
+			});
+		}
+        
     }
 }

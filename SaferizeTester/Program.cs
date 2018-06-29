@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using SaferizeSDK;
-using WebSocket4Net;
+using System.Net.NetworkInformation;
 
 namespace SaferizeTester {
     
@@ -16,15 +16,16 @@ namespace SaferizeTester {
             Saferize saferize = new Saferize(PRIVATE_KEY, SAFERIZE_URL, WEBSOCKET_URL, API_KEY);
 			Int32 unixTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
-			string mockToken = "token" + unixTimestamp;
+			string mockToken = "eric" + unixTimestamp;
 			Console.WriteLine(mockToken);
 
-			Approval approval  = saferize.Signup (mockToken + "@email.com", mockToken);
+			saferize.OnOfflineStart += delegate {
+				Console.WriteLine("entering offline mode");
+			};
 
-            Console.WriteLine("approval.id: " + approval.Id);
-            Console.WriteLine("AppUser id: " + approval.AppUser.Id);
-            Console.WriteLine("app Id: " + approval.AppUser.App.Id);
-            Console.WriteLine(approval.AppUser);
+			saferize.OnOfflineEnd += delegate {
+				Console.WriteLine("exiting offline mode");
+			};
 
             saferize.OnPause += delegate{
                 Console.WriteLine("paused");
@@ -43,8 +44,29 @@ namespace SaferizeTester {
                 Console.WriteLine("on reject");
             };
 
-			saferize.ConnectUser(mockToken);
+			saferize.OnPINChange += ((string pinHash) =>
+			{
+				Console.WriteLine("we got the pin change and the pinHash is: " + pinHash);
+			});
+
+
+			saferize.OnAppFeaturesChange += ((AppFeature[] appFeatures) =>
+			{
+				Console.WriteLine("Ads are " + appFeatures);
+			});
+				
+			Approval approval = saferize.Signup(mockToken + "@saferize.com", mockToken);
+            
+			// saferize.Signup automatically calls connect user
+            // saferize.ConnectUser is used as a 'login' for a returning user
+			// saferize.ConnectUser(mockToken);
+            
+			Console.WriteLine("approval.id: " + approval.Id);
+            Console.WriteLine("AppUser id: " + approval.AppUser.Id);
+            Console.WriteLine("app Id: " + approval.AppUser.App.Id);
+            Console.WriteLine(approval.AppUser);
+
             Console.ReadLine();
         }
-	}
+	},, 
 }

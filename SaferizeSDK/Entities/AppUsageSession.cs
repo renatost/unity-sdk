@@ -8,6 +8,7 @@ namespace SaferizeSDK
         public int Id;
 
         public Approval Approval;
-   		
+
+		public AppFeature[] Features;
     }
 }

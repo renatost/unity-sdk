@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SaferizeSDK;
 
-public class SampleSaferizeActivator : MonoBehaviour {
-
-	void Awake(){
-		SaferizeService.Instance ().ClearSaferizeData ();
+public class SampleSaferizeActivator : MonoBehaviour
+{
+	void Awake()
+	{
+		SaferizeService.Instance ().ClearSaferizeData ();    
 	}
 
 	public void OpenSaferize(){
@@ -16,4 +18,7 @@ public class SampleSaferizeActivator : MonoBehaviour {
 		SaferizeService.Instance ().CloseSaferizeParents ();
 	}
 
+	public void RemoveDatFile(){
+		SaferizeService.Instance().ClearSaferizeData();
+	}
 }
