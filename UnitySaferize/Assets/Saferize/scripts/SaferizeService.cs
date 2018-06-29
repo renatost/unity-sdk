@@ -105,7 +105,8 @@ public class SaferizeService : MonoBehaviour
         if (_saferizeData != null)
         {
             AppUsageSession appUsageSession = _saferize.ConnectUser(_saferizeData.token);
-
+			if (appUsageSession == null)
+				return;
             _saferizeData.approval = appUsageSession.Approval;
             _saferizeData.appFeatures = appUsageSession.Features;
 
@@ -204,7 +205,7 @@ public class SaferizeService : MonoBehaviour
         {
             if (feature.appFeature == appFeature)
             {
-                return feature.enabled ? AppFeature.AppFeatureStatus.ENABLED : AppFeature.AppFeatureStatus.DISABLED;
+				return AppFeature.AppFeatureStatus.DISABLED;
             }
         }
 
